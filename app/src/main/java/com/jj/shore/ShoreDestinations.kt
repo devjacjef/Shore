@@ -1,10 +1,12 @@
 package com.jj.shore
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.jj.shore.ui.home.HomeScreen
+import com.jj.shore.ui.task.TaskScreen
 
 /**
  * REFERENCES
@@ -23,6 +25,14 @@ data object Home : ShoreDestination {
     override val route = "home"
     override val screen: @Composable () -> Unit = { HomeScreen() }
 }
+
+data object Task : ShoreDestination {
+    override val icon = Icons.Filled.DateRange
+    override val route = "task"
+    override val screen: @Composable () -> Unit = { TaskScreen() }
+}
+
+val navigationScreens = listOf(Home, Task);
 
 // TODO: Implement Routes for Tasks
 // TODO: Implement Routes for Chores
