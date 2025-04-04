@@ -1,11 +1,18 @@
 package com.jj.shore
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.jj.shore.ui.theme.ShoreTheme
 
 /**
@@ -13,10 +20,22 @@ import com.jj.shore.ui.theme.ShoreTheme
  *  https://github.com/android/codelab-android-compose/blob/end/NavigationCodelab/app/src/main/java/com/example/compose/rally/RallyActivity.kt
  */
 
+// FIXME: Remove this suppression later
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ShoreApp(
-    modifier: Modifier = Modifier,
-) {
+fun ShoreApp() {
+    val currentScreen: ShoreDestination by remember { mutableStateOf(Home) }
+    val navController = rememberNavController()
+
+    Scaffold(
+        // TODO: Add "Bottom Bar"
+        // TODO: Add Bottom Navigation Bar
+    ) {
+        innerPadding ->
+        Box(Modifier.padding(innerPadding)) {
+//            TODO: Add the current screen
+        }
+    }
     // TODO: Add Nav Controller
     // TODO: Add Back Stack
     // TODO: Add Current Destination
@@ -27,9 +46,9 @@ fun ShoreApp(
 @Composable
 fun ShoreAppPreview() {
     ShoreTheme {
-        Scaffold (
-            modifier = Modifier.fillMaxSize()) {
-            innerPadding ->
+        Scaffold(
+            modifier = Modifier.fillMaxSize()
+        ) { innerPadding ->
             ShoreApp(modifier = Modifier.padding(innerPadding))
         }
     }
