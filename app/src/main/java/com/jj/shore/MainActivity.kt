@@ -18,11 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ShoreTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ShoreApp(modifier = Modifier.padding(innerPadding))
-                }
-            }
+            ShoreApp()
         }
     }
 }
