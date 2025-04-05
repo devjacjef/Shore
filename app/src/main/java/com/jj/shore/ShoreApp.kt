@@ -11,7 +11,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jj.shore.ui.components.BottomNavigationBar
 import com.jj.shore.ui.theme.ShoreTheme
@@ -22,16 +24,24 @@ import com.jj.shore.ui.theme.ShoreTheme
  *  https://developer.android.com/codelabs/jetpack-compose-navigation#3
  */
 
-// FIXME: Remove this suppression later
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ShoreApp() {
-    val currentScreen: ShoreDestination by remember { mutableStateOf(Home) }
-    // TODO: Research NavController
+    /**
+     * TODO: Add comments explaining this code.
+     * navController -
+     * currentBackStack -
+     * currentDestination -
+     * currentScreen -
+     */
     val navController = rememberNavController()
-
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStack?.destination
+    val currentScreen =
+        navigationScreens.find { it.route == currentDestination?.route } ?: Home
+    // TODO: Research NavController
     ShoreTheme {
         Scaffold(
+            // Bottom Navigation Bar
             bottomBar = {
                 BottomNavigationBar(
                     allScreens = navigationScreens,
@@ -39,33 +49,14 @@ fun ShoreApp() {
                         navController.navigateSingleTopTo(newScreen.route)
                     },
                     currentScreen = currentScreen
-
                 )
-                // TODO: Add "Bottom Bar"
-                // TODO: Add Bottom Navigation Bar
             }
         ) { innerPadding ->
-            Box(Modifier.padding(innerPadding)) {
-                // TODO: Add the current screen
-            }
+            // NavHost
+            ShoreNavHost(
+                navController = navController,
+                modifier = Modifier.padding(innerPadding)
+            )
         }
     }
-
-
-    // TODO: Add Nav Controller
-    // TODO: Add Back Stack
-    // TODO: Add Current Destination
-    // TODO: Add Current Screen
 }
-
-//@Preview
-//@Composable
-//fun ShoreAppPreview() {
-//    ShoreTheme {
-//        Scaffold(
-//            modifier = Modifier.fillMaxSize()
-//        ) { innerPadding ->
-//            ShoreApp(modifier = Modifier.padding(innerPadding))
-//        }
-//    }
-//}

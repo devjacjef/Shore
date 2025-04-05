@@ -22,23 +22,27 @@ fun ShoreNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
+    // Takes in the navController and provides a start destination.
     NavHost(
         navController = navController,
         startDestination = Home.route,
         modifier = modifier
     ) {
+        // NavGraph, defines all our routes.
         composable(route = Home.route) {
             HomeScreen()
         }
         composable(route = Task.route) {
             TaskScreen()
         }
+        // TODO: Add the rest of the apps Routes
     }
-
-    // TODO: Implement NavHost
-    // TODO: Add Routes
 }
 
+/**
+ *  Took from one of the references.
+ *  Comments explain what the code does.
+ */
 fun NavHostController.navigateSingleTopTo(route: String) =
     this.navigate(route) {
         // Pop up to the start destination of the graph to
@@ -56,21 +60,7 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         restoreState = true
     }
 
-// TODO: Import Dependencies
-// TODO: Implement this feature...
-//fun NavHostController.navigateSingleTopTo(route: String) =
-//    this.navigate(route) {
-//        // Pop up to the start destination of the graph to
-//        // avoid building up a large stack of destinations
-//        // on the back stack as users select items
-//        popUpTo(
-//            this@navigateSingleTopTo.graph.findStartDestination().id
-//        ) {
-//            saveState = true
-//        }
-//        // Avoid multiple copies of the same destination when
-//        // reselecting the same item
-//        launchSingleTop = true
-//        // Restore state when reselecting a previously selected item
-//        restoreState = true
-//    }
+// Example code for retrieving a route with arguments.
+//private fun NavHostController.navigateToSingleAccount(accountType: String) {
+//    this.navigateSingleTopTo("${SingleAccount.route}/$accountType")
+//}
