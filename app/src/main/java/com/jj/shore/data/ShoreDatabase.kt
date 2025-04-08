@@ -24,6 +24,7 @@ abstract class ShoreDatabase : RoomDatabase() {
         fun getDatabase(context: Context): ShoreDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, ShoreDatabase::class.java, "tasks")
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }
             }

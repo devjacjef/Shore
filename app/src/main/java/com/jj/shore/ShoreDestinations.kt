@@ -15,30 +15,34 @@ import com.jj.shore.ui.task.TaskScreen
  */
 
 /**
+ * PERSONAL NOTE
+ * FIXME: REMOVE THIS ON SUBMISSION/MERGE
+ * THIS IS MY ROUTES FOR THE APP,
+ * THINK SIMILARLY TO LARAVEL ROUTES
+ */
+
+/**
  * Provides a interface for a Destination.
  */
 sealed interface ShoreDestination {
     val icon: ImageVector
     val route: String
-    val screen: @Composable () -> Unit
 }
 
 /**
- * Home Destination
+ * Defines a Destination for Home
  */
 data object Home : ShoreDestination {
     override val icon = Icons.Filled.Home
     override val route = "home"
-    override val screen: @Composable () -> Unit = { HomeScreen() }
 }
 
 /**
- * Destination for Task Screen
+ * Defines a Destination for Task Screen
  */
 data object Task : ShoreDestination {
     override val icon = Icons.Filled.DateRange
     override val route = "task"
-    override val screen: @Composable () -> Unit = { TaskScreen() }
 }
 
 /**

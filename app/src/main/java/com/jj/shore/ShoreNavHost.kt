@@ -32,7 +32,9 @@ fun ShoreNavHost(
         composable(route = Home.route) {
             HomeScreen()
         }
-        composable(route = Task.route) {
+        composable(route = Task.route) { backStackEntry ->
+
+            val taskId = backStackEntry.arguments?.getInt("taskId") ?: return@composable
             TaskScreen()
         }
         // TODO: Add the rest of the apps Routes
