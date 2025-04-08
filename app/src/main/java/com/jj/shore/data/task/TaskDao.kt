@@ -3,7 +3,10 @@ package com.jj.shore.data.task
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -14,17 +17,24 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(task: Task)
+
+    @Delete
+    suspend fun delete(task: Task)
+
+    @Query("DELETE FROM tasks")
+    suspend fun deleteAllTasks()
+
+    @Update
+    suspend fun update(task: Task)
+
+    @Upsert
+    suspend fun upsert(task: Task)
+
     @Query("SELECT * FROM tasks")
     fun getAllTasks(): Flow<List<Task>>
 
-    @Query("SELECT * FROM tasks WHERE id IN (:taskId)")
-    fun getTask(taskId: Int): Flow<Task>
-
-    @Insert
-    fun insert(task: Task)
-
-    @Delete
-    fun delete(task: Task)
-
-    fun update(task: Task)
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    fun getTaskById(taskId: Int): Flow<Task>
 }
