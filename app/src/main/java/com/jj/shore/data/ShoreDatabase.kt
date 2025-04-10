@@ -13,7 +13,7 @@ import com.jj.shore.data.task.TaskDao
  * https://developer.android.com/codelabs/basic-android-kotlin-compose-persisting-data-room#6
  */
 
-@Database(entities = [Task::class], version = 1)
+@Database(entities = [Task::class], version = 1, exportSchema = false)
 abstract class ShoreDatabase : RoomDatabase() {
     abstract fun TaskDao(): TaskDao
 

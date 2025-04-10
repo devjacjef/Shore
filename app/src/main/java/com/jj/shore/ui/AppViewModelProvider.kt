@@ -6,11 +6,12 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.jj.shore.ShoreApplication
 import com.jj.shore.ui.home.HomeViewModel
+import com.jj.shore.ui.task.TaskViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            HomeViewModel(shoreApplication().container.tasksRepository)
+            TaskViewModel(shoreApplication().container.tasksRepository)
         }
     }
 }
