@@ -27,6 +27,12 @@
             }
         }
 
+        fun deleteTaskByIds(taskIds: List<Int>) {
+            viewModelScope.launch {
+                taskRepository.deleteTasksByIds(taskIds)
+            }
+        }
+
         fun clearAllTasks() {
             viewModelScope.launch {
                 taskRepository.deleteAllTasks()
