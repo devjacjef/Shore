@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.jj.shore.ui.home.HomeScreen
+import com.jj.shore.ui.reward.RewardScreen
 import com.jj.shore.ui.task.TaskScreen
 
 /**
@@ -34,8 +35,13 @@ fun ShoreNavHost(
         }
         composable(route = Task.route) { backStackEntry ->
 
-            val taskId = backStackEntry.arguments?.getInt("taskId") ?: return@composable
+//            val taskId = backStackEntry.arguments?.getInt("taskId") ?: return@composable
             TaskScreen()
+        }
+        composable(route = Reward.route) { backStackEntry ->
+
+//            val taskId = backStackEntry.arguments?.getInt("taskId") ?: return@composable
+            RewardScreen()
         }
         // TODO: Add the rest of the apps Routes
     }

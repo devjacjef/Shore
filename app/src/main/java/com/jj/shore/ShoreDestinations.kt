@@ -2,6 +2,7 @@ package com.jj.shore
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,10 +46,16 @@ data object Task : ShoreDestination {
     override val route = "task"
 }
 
+data object Reward : ShoreDestination {
+    // TODO: Replace Icon with something more fitting
+    override val icon = Icons.Filled.Face
+    override val route = "reward"
+}
+
 /**
  * List of routes for the navigation bar
  */
-val navigationScreens = listOf(Home, Task);
+val navigationScreens = listOf(Home, Task, Reward);
 
 // TODO: Implement Routes for Tasks
 // TODO: Implement Routes for Chores

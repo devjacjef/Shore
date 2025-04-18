@@ -1,7 +1,10 @@
 package com.jj.shore.data
 
 import android.content.Context
+import com.jj.shore.data.reward.RewardRepository
+import com.jj.shore.data.reward.OfflineRewardRepository
 import com.jj.shore.data.task.OfflineTaskRepository
+import com.jj.shore.data.reward.Reward
 import com.jj.shore.data.task.TaskRepository
 
 /**
@@ -12,12 +15,17 @@ import com.jj.shore.data.task.TaskRepository
 
 interface AppContainer {
     val tasksRepository: TaskRepository
+    val rewardRepository: RewardRepository
 }
 
 class AppDataContainer(private val context: Context) : AppContainer {
 
     override val tasksRepository: TaskRepository by lazy {
         OfflineTaskRepository(ShoreDatabase.getDatabase(context).TaskDao())
+    }
+
+    override val rewardRepository: RewardRepository by lazy {
+        OfflineRewardRepository(ShoreDatabase.getDatabase(context).RewardDao())
     }
 
 }
