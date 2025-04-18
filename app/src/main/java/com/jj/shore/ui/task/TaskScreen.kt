@@ -20,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,7 +50,18 @@ fun TaskScreen(
     var selectMode by rememberSaveable { mutableStateOf(false) }
     var selectedTaskIds by rememberSaveable { mutableStateOf(listOf<Int>()) }
 
-    // TODO: Implement Selecting Tasks
+    var activeTaskId by rememberSaveable { mutableStateOf<Int?>(null) }
+
+    if (taskList.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "No tasks have been added.", color = Color.Gray)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -60,7 +72,7 @@ fun TaskScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 80.dp)
+//                .padding(bottom = 80.dp)
         ) {
             items(items = taskList, key = { it.id }) { item ->
                 val isSelected = item.id in selectedTaskIds
@@ -69,7 +81,10 @@ fun TaskScreen(
                     modifier = Modifier
                         .padding(8.dp)
                         .combinedClickable(
-                            onClick = {},
+                            onClick = {
+                                activeTaskId = item.id
+                                selectedTaskIds = listOf()
+                            },
                             onLongClick = {
                                 selectedTaskIds = selectedTaskIds + item.id
                             }
@@ -87,27 +102,51 @@ fun TaskScreen(
             }
         }
 
-        Column(modifier = Modifier.align(Alignment.BottomStart)) {
-            taskActionButtons(viewModel, selectedTaskIds)
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .background(Color.Transparent)
+        ) {
+            taskActionButtons(
+                viewModel,
+                selectedTaskIds,
+                OnClearSelection = { selectedTaskIds = listOf() })
         }
 
-
-        // TODO: MOVE THIS TO MORE OF AN EDITING MODAL OR A NEW SCREEN. . .
-//        selectedTaskModal(
-//            activeTaskId = activeTaskId,
-//            onDismiss = { activeTaskId = null },
-//            taskList = taskList
-//        )
-
-
+        if (activeTaskId != null) {
+            selectedTaskModal(
+                activeTaskId = activeTaskId,
+                onDismiss = { activeTaskId = null },
+                taskList = taskList
+            )
+        }
     }
 }
 
 @Composable
 fun taskActionButtons(
     viewModel: TaskViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    selectedTaskIds: List<Int>
+    selectedTaskIds: List<Int>,
+    OnClearSelection: () -> Unit
 ) {
+
+    // Delete Button
+    if (selectedTaskIds.isNotEmpty()) {
+        Button(
+            onClick = {
+                viewModel.deleteTaskByIds(selectedTaskIds)
+                OnClearSelection()
+            },
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.error)
+        ) {
+            Icon(Icons.Filled.Delete, "Add")
+        }
+    }
+
+    // Insert New Task Button
     Button(
         onClick = {
             // When the button is clicked, insert a new task
@@ -123,19 +162,7 @@ fun taskActionButtons(
         Icon(Icons.Filled.Add, "Add")
     }
 
-    if(selectedTaskIds.isNotEmpty()){
-        Button(
-            onClick = {
-                viewModel.deleteTaskByIds(selectedTaskIds)
-            },
-            modifier = Modifier
-                .size(64.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.error)
-        ) {
-            Icon(Icons.Filled.Delete, "Add")
-        }
-    }
+
 }
 
 
@@ -149,26 +176,36 @@ fun selectedTaskModal(
         val selectedTask = taskList.firstOrNull { it.id == activeTaskId }
         selectedTask?.let { task ->
 
-//            Box(
-//                Modifier
-//                    .fillMaxSize()
-//                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
-//                    .clickable { onDismiss() },
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Column(
-//                    Modifier
-//                        .padding(24.dp)
-//                        .background(MaterialTheme.colorScheme.background)
-//                        .padding(16.dp)
-//                ) {
-//                    Text("Title: ${task.title}", style = MaterialTheme.typography.titleLarge)
-//                    Text("Description: ${task.description}")
-//                    Button(onClick = { onDismiss() }) {
-//                        Text("Close")
-//                    }
-//                }
-//            }
+            var title by rememberSaveable { mutableStateOf(task.title) }
+            var description by rememberSaveable { mutableStateOf(task.description) }
+
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                    .clickable { onDismiss() },
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    Modifier
+                        .padding(24.dp)
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(16.dp)
+                ) {
+                    TextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Title") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    TextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("Description") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
     }
 }
