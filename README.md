@@ -5,6 +5,7 @@ This is a Chore app that will be used to track chores and reward a user for acco
 
 Planned Features
 
+Firebase Auth & Store
 CRUD Operations for Tasks/Rewards
 Overview of Accomplished Chores
 
