@@ -1,6 +1,7 @@
 package com.jj.shore
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
@@ -45,29 +46,16 @@ data object Task : ShoreDestination {
     override val route = "task"
 }
 
+data object Login: ShoreDestination {
+    override val icon = Icons.Filled.AccountCircle
+    override val route = "login"
+}
+
 /**
  * List of routes for the navigation bar
  */
-val navigationScreens = listOf(Home, Task);
+val navigationScreens = listOf(Home, Task, Login);
 
 // TODO: Implement Routes for Tasks
 // TODO: Implement Routes for Chores
 // TODO: Implement Routes for Rewards
-
-/**
- * Example code to be referenced later in the project...
- */
-//data object SingleAccount : RallyDestination {
-//    // Added for simplicity, this icon will not in fact be used, as SingleAccount isn't
-//    // part of the RallyTabRow selection
-//    override val icon = Icons.Filled.Money
-//    override val route = "single_account"
-//    const val accountTypeArg = "account_type"
-//    val routeWithArgs = "$route/{$accountTypeArg}"
-//    val arguments = listOf(
-//        navArgument(accountTypeArg) { type = NavType.StringType }
-//    )
-//    val deepLinks = listOf(
-//        navDeepLink { uriPattern = "rally://$route/{$accountTypeArg}" }
-//    )
-//}
