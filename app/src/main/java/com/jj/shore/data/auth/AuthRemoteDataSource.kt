@@ -9,6 +9,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
+/**
+ * REFERENCES
+ * https://github.com/FirebaseExtended/make-it-so-android/blob/main/v2/app/src/main/java/com/google/firebase/example/makeitso/data/datasource/AuthRemoteDataSource.kt
+ */
+
 class AuthRemoteDataSource @Inject constructor(private val auth: FirebaseAuth) {
     val currentUser : FirebaseUser? get() = auth.currentUser
 
@@ -41,5 +46,11 @@ class AuthRemoteDataSource @Inject constructor(private val auth: FirebaseAuth) {
 
     suspend fun deleteAccount() {
         auth.currentUser!!.delete().await()
+    }
+
+    fun addAuthStateListener(onAuthStateChanged: (user: FirebaseUser?) -> Unit) {
+        auth.addAuthStateListener { firebaseAuth ->
+            onAuthStateChanged(firebaseAuth.currentUser)
+        }
     }
 }

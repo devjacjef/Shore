@@ -11,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.auth.AuthenticationException
 import com.jj.shore.data.auth.AuthRepository
-import com.jj.shore.data.user.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,10 +36,13 @@ class LoginViewModel(
     private val _shouldNavigateToHome = MutableStateFlow(false)
     val shouldNavigateToHome: StateFlow<Boolean> get() = _shouldNavigateToHome.asStateFlow()
 
+    private val _shouldRestartApp = MutableStateFlow(false)
+    val shouldRestartApp: StateFlow<Boolean>
+        get() = _shouldRestartApp.asStateFlow()
+
     init {
-        val user = authRepository.currentUser
-        if (user != null) {
-            _shouldNavigateToHome.value = true
+        authRepository.addAuthStateListener { user ->
+            _shouldNavigateToHome.value = user != null
         }
     }
 
@@ -55,7 +57,7 @@ class LoginViewModel(
                 // After successful login, navigate to home
                 _shouldNavigateToHome.value = true
             } catch (e: Exception) {
-                // Handle error and reset navigation flag
+                // TODO: Handle exceptions properly
                 _shouldNavigateToHome.value = false
                 Log.e("LoginViewModel", "Sign-in failed: ${e.message}")
             } finally {
