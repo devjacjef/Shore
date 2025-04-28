@@ -1,5 +1,9 @@
 package com.jj.shore
 
+import android.util.Log
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -19,6 +23,8 @@ import com.jj.shore.ui.AppViewModelProvider
 import com.jj.shore.ui.home.HomeScreen
 import com.jj.shore.ui.login.LoginScreen
 import com.jj.shore.ui.login.LoginViewModel
+import com.jj.shore.ui.settings.SettingsScreen
+import com.jj.shore.ui.settings.SettingsViewModel
 import com.jj.shore.ui.task.TaskScreen
 
 /**
@@ -32,23 +38,60 @@ import com.jj.shore.ui.task.TaskScreen
 fun ShoreNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    isLoading: Boolean = false
 ) {
+    val loginViewModel: LoginViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val shouldNavigateToHome by loginViewModel.shouldNavigateToHome.collectAsState()
+    val shouldRestartApp by loginViewModel.shouldRestartApp.collectAsState()
+
+    val startDestination = when {
+        shouldRestartApp -> {
+            if (shouldNavigateToHome) Home.route else Login.route
+        }
+
+        else -> Login.route
+    }
+
     // Navigate normally
     NavHost(
         navController = navController,
-        startDestination = Login.route,
+        startDestination = startDestination,
         modifier = modifier
     ) {
-        composable(route = Home.route) {
-            HomeScreen()
-        }
-        composable(route = Task.route) { backStackEntry ->
-            val taskId = backStackEntry.arguments?.getInt("taskId") ?: return@composable
-            TaskScreen()
-        }
+
         composable(route = Login.route) {
             LoginScreen()
+        }
+        composable(route = Home.route) {
+            if (!shouldNavigateToHome) {
+                navController.navigate(Login.route) {
+                    popUpTo(Login.route)
+                    launchSingleTop = true
+                }
+            } else {
+                HomeScreen()
+            }
+        }
+        composable(route = Task.route) { backStackEntry ->
+            if (!shouldNavigateToHome) {
+                navController.navigate(Login.route) {
+                    popUpTo(Login.route)
+                    launchSingleTop = true
+                }
+            } else {
+                val taskId = backStackEntry.arguments?.getInt("taskId") ?: return@composable
+                TaskScreen()
+            }
+        }
+
+        composable(route = Settings.route) {
+            if (!shouldNavigateToHome) {
+                navController.navigate(Login.route) {
+                    popUpTo(Login.route)
+                    launchSingleTop = true
+                }
+            } else {
+                SettingsScreen()
+            }
         }
     }
 }
@@ -74,8 +117,3 @@ fun NavHostController.navigateSingleTopTo(route: String) =
         // Restore state when reselecting a previously selected item
         restoreState = true
     }
-
-// Example code for retrieving a route with arguments.
-//private fun NavHostController.navigateToSingleAccount(accountType: String) {
-//    this.navigateSingleTopTo("${SingleAccount.route}/$accountType")
-//}

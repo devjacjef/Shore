@@ -71,7 +71,7 @@ fun ShoreApp() {
 
             ShoreNavHost(
                 navController = navController,
-                isLoading = viewModel.isLoading.value,
+//                isLoading = viewModel.isLoading.value,
                 modifier = Modifier.padding(innerPadding)
             )
         }
