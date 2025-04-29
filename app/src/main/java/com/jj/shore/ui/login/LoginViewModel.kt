@@ -11,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.auth.AuthenticationException
 import com.jj.shore.data.auth.AuthRepository
+import com.jj.shore.helpers.isValidEmail
+import com.jj.shore.helpers.isValidPassword
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,20 +48,26 @@ class LoginViewModel(
         }
     }
 
-    fun signIn(email: String, password: String) {
+    fun signIn(
+        email: String,
+        password: String,
+        errorMessage: (String) -> Unit
+    ) {
+
+        if (email.isBlank() || password.isBlank()) {
+            errorMessage("Please fill in all fields.")
+            return
+        }
+
         viewModelScope.launch {
-            _isLoading.value = true  // Start loading
 
             try {
-                // Sign in logic (assumed to be in AuthRepository)
                 authRepository.signIn(email, password)
 
-                // After successful login, navigate to home
                 _shouldNavigateToHome.value = true
             } catch (e: Exception) {
-                // TODO: Handle exceptions properly
                 _shouldNavigateToHome.value = false
-                Log.e("LoginViewModel", "Sign-in failed: ${e.message}")
+                errorMessage("Error signing in user, ${e.message}")
             } finally {
                 _isLoading.value = false  // Stop loading, regardless of success or failure
             }

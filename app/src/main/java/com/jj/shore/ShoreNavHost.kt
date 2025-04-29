@@ -23,6 +23,7 @@ import com.jj.shore.ui.AppViewModelProvider
 import com.jj.shore.ui.home.HomeScreen
 import com.jj.shore.ui.login.LoginScreen
 import com.jj.shore.ui.login.LoginViewModel
+import com.jj.shore.ui.register.RegisterScreen
 import com.jj.shore.ui.settings.SettingsScreen
 import com.jj.shore.ui.settings.SettingsViewModel
 import com.jj.shore.ui.task.TaskScreen
@@ -59,7 +60,15 @@ fun ShoreNavHost(
     ) {
 
         composable(route = Login.route) {
-            LoginScreen()
+            LoginScreen(openRegister = {
+                navController.navigate(Register.route) {
+                    popUpTo(Login.route)
+                    launchSingleTop = true
+                }
+            })
+        }
+        composable(route = Register.route) {
+            RegisterScreen()
         }
         composable(route = Home.route) {
             if (!shouldNavigateToHome) {

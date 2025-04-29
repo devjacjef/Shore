@@ -47,12 +47,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: LoginViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    openRegister: () -> Unit
 ) {
-    val isLoading = remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    var errorMessage by remember { mutableStateOf("") }
 
     Box(
         Modifier
@@ -63,11 +63,16 @@ fun LoginScreen(
         LoginForm(
             email = email,
             password = password,
+            errorMessage = errorMessage,
             onEmailChange = { email = it },
             onPasswordChange = { password = it },
             onSignInClick = {
-                isLoading.value = true
-                viewModel.signIn(email, password)
+                viewModel.signIn(email, password, errorMessage = {message ->
+                    errorMessage = message
+                })
+            },
+            onRegisterClick = {
+                openRegister()
             }
         )
     }
@@ -78,10 +83,13 @@ fun LoginScreen(
 fun LoginForm(
     email: String,
     password: String,
+    errorMessage: String,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onSignInClick: () -> Unit
+    onSignInClick: () -> Unit,
+    onRegisterClick: () -> Unit
 ) {
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
         Text("Shore", fontSize = 64.sp)
@@ -93,7 +101,7 @@ fun LoginForm(
             onValueChange = onEmailChange,
             label = { Text("Email") },
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
@@ -108,7 +116,7 @@ fun LoginForm(
             onValueChange = onPasswordChange,
             label = { Text("Password") },
             shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.textFieldColors(
+            colors = TextFieldDefaults.colors(
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
@@ -117,11 +125,29 @@ fun LoginForm(
             visualTransformation = PasswordVisualTransformation()
         )
 
+        if (errorMessage.isNotEmpty()) {
+            Spacer(Modifier.size(8.dp))
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+
         Spacer(Modifier.size(32.dp))
 
         Button(onClick = onSignInClick,
             Modifier.height(48.dp).width(200.dp)) {
             Text("Sign In")
+        }
+
+        Spacer(Modifier.size(16.dp))
+
+        Button(onClick = onRegisterClick,
+            Modifier.height(48.dp).width(200.dp)) {
+            Text("Sign Up")
         }
     }
 }
