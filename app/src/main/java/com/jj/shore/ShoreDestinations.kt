@@ -3,6 +3,7 @@ package com.jj.shore
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
@@ -55,6 +56,11 @@ data object Login: ShoreDestination {
 data object Settings: ShoreDestination {
     override val icon = Icons.Filled.Settings
     override val route = "settings"
+}
+
+data object Register: ShoreDestination {
+    override val icon = Icons.Filled.AccountCircle
+    override val route = "register"
 }
 
 /**

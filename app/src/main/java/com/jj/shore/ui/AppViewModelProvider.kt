@@ -8,6 +8,7 @@ import com.jj.shore.Login
 import com.jj.shore.ShoreApplication
 import com.jj.shore.ui.home.HomeViewModel
 import com.jj.shore.ui.login.LoginViewModel
+import com.jj.shore.ui.register.RegisterViewModel
 import com.jj.shore.ui.settings.SettingsViewModel
 import com.jj.shore.ui.task.TaskViewModel
 
@@ -26,6 +27,10 @@ object AppViewModelProvider {
 
         initializer {
             SettingsViewModel(shoreApplication().container.authRepository)
+        }
+
+        initializer {
+            RegisterViewModel(shoreApplication().container.authRepository)
         }
     }
 }
