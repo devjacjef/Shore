@@ -18,7 +18,7 @@ import com.jj.shore.ui.task.TaskViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            TaskViewModel(shoreApplication().container.tasksRepository)
+            TaskViewModel(shoreApplication().container.tasksRepository, shoreApplication().container.connectivityObserver)
         }
 
         initializer {

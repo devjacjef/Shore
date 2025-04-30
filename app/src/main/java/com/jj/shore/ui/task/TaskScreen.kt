@@ -47,6 +47,8 @@ fun TaskScreen(
     val taskUiState: TaskUiState by viewModel.taskUiState.collectAsState()
     val taskList = taskUiState.taskList
 
+    val status by viewModel.networkStatus.collectAsState()
+
     var selectMode by rememberSaveable { mutableStateOf(false) }
     var selectedTaskIds by rememberSaveable { mutableStateOf(listOf<Int>()) }
 
@@ -69,6 +71,14 @@ fun TaskScreen(
             .padding(8.dp),
         contentAlignment = Alignment.TopCenter
     ) {
+        // FIXME: REMOVE LATER
+        Text(
+            text = "Status: $status",
+            modifier = Modifier.align(
+                Alignment.TopStart
+            )
+        )
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
