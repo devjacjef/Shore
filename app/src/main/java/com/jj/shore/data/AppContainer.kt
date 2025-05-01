@@ -5,8 +5,6 @@
     import com.google.firebase.auth.FirebaseAuth
     import com.jj.shore.data.auth.AuthRemoteDataSource
     import com.jj.shore.data.auth.AuthRepository
-    import com.jj.shore.data.task.OfflineTaskRepository
-    import com.jj.shore.data.task.TaskRepository
     import com.jj.shore.helpers.connectivity.NetworkConnectivityObserver
 
     /**
@@ -19,7 +17,7 @@
      * AppContainer Interface
      */
     interface AppContainer {
-        val tasksRepository: TaskRepository
+//        val tasksRepository: TaskRepository
         val authRepository: AuthRepository
         val connectivityObserver: NetworkConnectivityObserver
     }
@@ -37,9 +35,9 @@
             AuthRemoteDataSource(firebaseAuth)
         }
 
-        override val tasksRepository: TaskRepository by lazy {
-            OfflineTaskRepository(ShoreDatabase.getDatabase(context).TaskDao())
-        }
+//        override val tasksRepository: TaskRepository by lazy {
+//            OfflineTaskRepository(ShoreDatabase.getDatabase(context).TaskDao())
+//        }
 
         override val authRepository: AuthRepository by lazy {
             AuthRepository(authRemoteDataSource)

@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.jj.shore.ui.home.HomeScreen
-import com.jj.shore.ui.task.TaskScreen
 
 /**
  * REFERENCES
@@ -40,13 +39,13 @@ data object Home : ShoreDestination {
     override val route = "home"
 }
 
-/**
- * Defines a Destination for Task Screen
- */
-data object Task : ShoreDestination {
-    override val icon = Icons.Filled.DateRange
-    override val route = "task"
-}
+///**
+// * Defines a Destination for Task Screen
+// */
+//data object Task : ShoreDestination {
+//    override val icon = Icons.Filled.DateRange
+//    override val route = "task"
+//}
 
 data object Login: ShoreDestination {
     override val icon = Icons.Filled.AccountCircle
@@ -66,7 +65,7 @@ data object Register: ShoreDestination {
 /**
  * List of routes for the navigation bar
  */
-val navigationScreens = listOf(Home, Task, Settings);
+val navigationScreens = listOf(Home, Settings);
 
 // TODO: Implement Routes for Tasks
 // TODO: Implement Routes for Chores
