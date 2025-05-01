@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.androidx.runtime.livedata)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

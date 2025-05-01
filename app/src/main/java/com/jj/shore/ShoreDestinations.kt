@@ -42,22 +42,22 @@ data object Home : ShoreDestination {
 ///**
 // * Defines a Destination for Task Screen
 // */
-//data object Task : ShoreDestination {
-//    override val icon = Icons.Filled.DateRange
-//    override val route = "task"
-//}
+data object Task : ShoreDestination {
+    override val icon = Icons.Filled.DateRange
+    override val route = "task"
+}
 
-data object Login: ShoreDestination {
+data object Login : ShoreDestination {
     override val icon = Icons.Filled.AccountCircle
     override val route = "login"
 }
 
-data object Settings: ShoreDestination {
+data object Settings : ShoreDestination {
     override val icon = Icons.Filled.Settings
     override val route = "settings"
 }
 
-data object Register: ShoreDestination {
+data object Register : ShoreDestination {
     override val icon = Icons.Filled.AccountCircle
     override val route = "register"
 }
@@ -65,7 +65,7 @@ data object Register: ShoreDestination {
 /**
  * List of routes for the navigation bar
  */
-val navigationScreens = listOf(Home, Settings);
+val navigationScreens = listOf(Home, Task, Settings);
 
 // TODO: Implement Routes for Tasks
 // TODO: Implement Routes for Chores

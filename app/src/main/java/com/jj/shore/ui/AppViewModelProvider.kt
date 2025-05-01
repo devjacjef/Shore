@@ -9,15 +9,16 @@ import com.jj.shore.ShoreApplication
 import com.jj.shore.ui.login.LoginViewModel
 import com.jj.shore.ui.register.RegisterViewModel
 import com.jj.shore.ui.settings.SettingsViewModel
+import com.jj.shore.ui.task.TaskViewModel
 
 /**
  * Handles Manual Dependency Injection
  */
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-//        initializer {
-//            TaskViewModel(shoreApplication().container.tasksRepository, shoreApplication().container.connectivityObserver)
-//        }
+        initializer {
+            TaskViewModel(shoreApplication().container.firestore)
+        }
 
         initializer {
             LoginViewModel(shoreApplication().container.authRepository)
