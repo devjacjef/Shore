@@ -62,6 +62,11 @@ data object Register : ShoreDestination {
     override val route = "register"
 }
 
+data object TaskForm : ShoreDestination {
+    override val icon = Icons.Filled.DateRange
+    override val route = "taskform"
+}
+
 /**
  * List of routes for the navigation bar
  */

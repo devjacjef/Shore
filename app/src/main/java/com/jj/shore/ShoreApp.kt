@@ -56,7 +56,7 @@ fun ShoreApp() {
                 BottomNavigationBar(
                     allScreens = navigationScreens,
                     onTabSelected = { newScreen ->
-                        navController.navigateSingleTopTo(newScreen.route)
+                        navController.navigate(newScreen.route)
                     },
                     currentScreen = currentScreen
                 )

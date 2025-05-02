@@ -17,7 +17,10 @@ import com.jj.shore.ui.task.TaskViewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            TaskViewModel(shoreApplication().container.firestore)
+            TaskViewModel(
+                shoreApplication().container.taskRepository,
+                shoreApplication().container.authRepository
+            )
         }
 
         initializer {
