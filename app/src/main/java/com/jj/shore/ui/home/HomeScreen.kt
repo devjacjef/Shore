@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,30 +26,48 @@ import com.jj.shore.ui.AppViewModelProvider
 import com.jj.shore.ui.register.RegisterViewModel
 import com.jj.shore.ui.task.TaskViewModel
 
+/**
+ * REFERENCES
+ *
+ * https://developer.android.com/codelabs/jetpack-compose-navigation#5
+ *
+ * NOTE:
+ * Can add on click events if needed.
+ */
+
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    taskViewModel: TaskViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val email by viewModel.userEmail
-    val tasksCount by viewModel.outstandingTasksCount
+    val tasksCount by taskViewModel.outstandingTaskCount.collectAsState()
+    val userId by viewModel.userIdStateFlow.collectAsState()
+
+    LaunchedEffect(email) {
+        email?.let {
+            if (userId != null) {
+                taskViewModel.forceRefresh(userId!!)
+            }
+        }
+    }
 
     Box(
         Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Display the email if it exists
             email?.let { Welcome(it) } ?: Text("No email available")
-
-            OutstandingPrompt(tasksCount ?: 0)
+            OutstandingPrompt(tasksCount)
         }
     }
 }
 
 
+
 @Composable
 fun Welcome(email: String) {
-    Text("Welcome, $email", fontSize = 24.sp)
+    Text("Welcome, back!", fontSize = 24.sp)
 }
 
 @Composable

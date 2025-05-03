@@ -25,7 +25,6 @@ import com.jj.shore.ui.login.LoginScreen
 import com.jj.shore.ui.login.LoginViewModel
 import com.jj.shore.ui.register.RegisterScreen
 import com.jj.shore.ui.settings.SettingsScreen
-import com.jj.shore.ui.settings.SettingsViewModel
 import com.jj.shore.ui.task.TaskFormScreen
 import com.jj.shore.ui.task.TaskScreen
 import com.jj.shore.ui.task.TaskViewModel
@@ -85,7 +84,6 @@ fun ShoreNavHost(
             }
         }
         composable(route = Task.route) { backStackEntry ->
-
             if (!shouldNavigateToHome) {
                 navController.navigate(Login.route) {
                     popUpTo(Login.route)

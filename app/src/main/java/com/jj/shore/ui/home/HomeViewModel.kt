@@ -6,7 +6,10 @@ import com.jj.shore.data.auth.AuthRepository
 import com.jj.shore.data.task.TaskRepository
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -19,6 +22,9 @@ class HomeViewModel(
 
     private val _outstandingTasksCount = mutableStateOf<Int?>(null)
     val outstandingTasksCount: State<Int?> = _outstandingTasksCount
+
+    val userIdStateFlow: StateFlow<String?> = authRepository.currentUserIdFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     init {
         loadUserData()
