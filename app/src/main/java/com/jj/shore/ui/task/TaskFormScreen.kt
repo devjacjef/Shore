@@ -35,7 +35,7 @@ fun TaskFormScreen(
 
     var title by rememberSaveable { mutableStateOf(selectedTask?.title ?: "") }
     var description by rememberSaveable { mutableStateOf(selectedTask?.description ?: "") }
-    val isCompleted = viewModel.isCompleted
+    var completed by rememberSaveable { mutableStateOf(selectedTask?.completed ?: false) }
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -70,12 +70,12 @@ fun TaskFormScreen(
             Spacer(Modifier.size(16.dp))
 
             Button(
-                onClick = { viewModel.toggleCompleted() }, // ✅ Call ViewModel to update state
+                onClick = { completed = !completed },
                 modifier = Modifier
                     .height(48.dp)
                     .width(200.dp)
             ) {
-                Text(if (isCompleted) "Mark Incomplete" else "Mark Complete")
+                Text(if (completed) "Mark Incomplete" else "Mark Complete")
             }
         }
     }
@@ -87,7 +87,7 @@ fun TaskFormScreen(
             val updatedTask = selectedTask?.copy(
                 title = title,
                 description = description,
-                completed = viewModel.isCompleted
+                completed = completed
             )
             updatedTask?.let { viewModel.saveTask(it) }
         }, Modifier
