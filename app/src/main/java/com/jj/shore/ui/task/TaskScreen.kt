@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -52,7 +53,7 @@ fun TaskScreen(
     onTaskClick: (Task?) -> Unit,
     viewModel: TaskViewModel,
 ) {
-    val tasks by viewModel.tasks.collectAsStateWithLifecycle(emptyList())
+    val tasks by viewModel.tasks.collectAsState()
 
     var selectMode by rememberSaveable { mutableStateOf(false) }
     var selectedTasks by rememberSaveable { mutableStateOf<Set<Task>>(emptySet()) }
@@ -155,6 +156,7 @@ fun TaskActionButtons(
             onClick = {
                 val newTask = viewModel.createTemplateTask()
                 viewModel.createTask(newTask)
+                Log.d("Create task called", "Create task called")
             },
             modifier = Modifier.size(64.dp), // Size of the button
             shape = CircleShape,
@@ -182,7 +184,7 @@ fun TaskCard(
     Card(
         colors = CardDefaults.cardColors(
             containerColor = when {
-                selected -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+                selected -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)
                 task.completed -> MaterialTheme.colorScheme.inversePrimary
                 else -> MaterialTheme.colorScheme.surfaceVariant
             }

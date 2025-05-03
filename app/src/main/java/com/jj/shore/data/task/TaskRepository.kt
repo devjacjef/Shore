@@ -1,46 +1,52 @@
-package com.jj.shore.data.task
+    package com.jj.shore.data.task
 
-import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
+    import android.util.Log
+    import kotlinx.coroutines.flow.Flow
+    import javax.inject.Inject
 
-class TaskRepository @Inject constructor(private val taskRemoteDataSource: TaskRemoteDataSource) {
-    fun getAllTasks(currentUserIdFlow: Flow<String?>): Flow<List<Task>> {
-        return taskRemoteDataSource.getAllTasks(currentUserIdFlow)
+    class TaskRepository @Inject constructor(private val taskRemoteDataSource: TaskRemoteDataSource) {
+        fun getAllTasks(currentUserId: Flow<String?>): Flow<List<Task>> {
+            return taskRemoteDataSource.getAllTasks(currentUserId)
+        }
+
+        suspend fun create(task: Task): String? {
+            Log.d("Create task called", "Create task called again again")
+            return taskRemoteDataSource.create(task)
+        }
+
+        suspend fun update(task: Task) {
+            taskRemoteDataSource.update(task)
+        }
+
+        suspend fun deleteTasks(tasks: Set<Task>) {
+            taskRemoteDataSource.deleteTasks(tasks)
+        }
+
+        suspend fun markAsComplete(tasks: Set<Task>) {
+            taskRemoteDataSource.markAsComplete(tasks)
+        }
+
+        suspend fun markAsIncomplete(tasks: Set<Task>) {
+            taskRemoteDataSource.markAsIncomplete(tasks)
+        }
+
+        suspend fun delete(taskId: String) {
+            taskRemoteDataSource.delete(taskId)
+        }
+
+        suspend fun getOutstandingTasks(): Flow<List<Task>> {
+            return taskRemoteDataSource.getOutstandingTasks()
+        }
+
+        fun getOutstandingTaskCountFlow(userId: String): Flow<Int> {
+            return taskRemoteDataSource.getOutstandingTaskCountFlow(userId)
+        }
+
+        fun getAllTasksForUser(userId: String): Flow<List<Task>> {
+            return taskRemoteDataSource.getAllTasksForUser(userId)
+        }
+
+        suspend fun getTasksCount(): Int {
+            return taskRemoteDataSource.getTasksCount()
+        }
     }
-
-    suspend fun create(task: Task): String {
-        return taskRemoteDataSource.create(task)
-    }
-
-    suspend fun update(task: Task) {
-        taskRemoteDataSource.update(task)
-    }
-
-    suspend fun deleteTasks(tasks: Set<Task>) {
-        taskRemoteDataSource.deleteTasks(tasks)
-    }
-
-    suspend fun markAsComplete(tasks: Set<Task>) {
-        taskRemoteDataSource.markAsComplete(tasks)
-    }
-
-    suspend fun markAsIncomplete(tasks: Set<Task>) {
-        taskRemoteDataSource.markAsIncomplete(tasks)
-    }
-
-    suspend fun delete(taskId: String) {
-        taskRemoteDataSource.delete(taskId)
-    }
-
-    suspend fun getOutstandingTasks(): Flow<List<Task>> {
-        return taskRemoteDataSource.getOutstandingTasks()
-    }
-
-    fun getOutstandingTaskCountFlow(userId: String): Flow<Int> {
-        return taskRemoteDataSource.getOutstandingTaskCountFlow(userId)
-    }
-
-    suspend fun getTasksCount(): Int {
-        return taskRemoteDataSource.getTasksCount()
-    }
-}

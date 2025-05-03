@@ -14,13 +14,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jj.shore.ui.AppViewModelProvider
+import com.jj.shore.ui.login.LoginViewModel
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: LoginViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
 
-    val shouldRestartApp by viewModel.shouldRestartApp.collectAsStateWithLifecycle()
     Box(
         Modifier
             .padding(16.dp)
@@ -28,8 +28,17 @@ fun SettingsScreen(
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Sign Out Button
             Button(onClick = { viewModel.signOut() }) {
                 Text("Sign Out")
+            }
+
+            // Add a space between buttons (optional)
+            androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(8.dp))
+
+            // Delete Account Button
+            Button(onClick = { viewModel.deleteAccount() }) {
+                Text("Delete Account")
             }
         }
     }

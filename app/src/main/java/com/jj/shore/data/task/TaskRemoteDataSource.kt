@@ -1,165 +1,190 @@
-package com.jj.shore.data.task
+    package com.jj.shore.data.task
 
-import android.util.Log
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.dataObjects
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
-
-/**
- * REFERENCES:
- * https://github.com/FirebaseExtended/make-it-so-android/blob/main/v2/app/src/main/java/com/google/firebase/example/makeitso/data/datasource/TodoListRemoteDataSource.kt#L7
- * https://firebase.google.com/docs/firestore/query-data/queries
- */
-
-class TaskRemoteDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
-
-    suspend fun refreshTasks(userId: String): List<Task> {
-        try {
-            val snapshot = firestore.collection("tasks")
-                .whereEqualTo("userId", userId)
-                .get()
-                .await()
-
-            return snapshot.toObjects(Task::class.java)
-        } catch (e: Exception) {
-            Log.e("TaskRemoteDataSource", "Error refreshing tasks: ${e.message}", e)
-            return emptyList()
-        }
-    }
+    import android.util.Log
+    import androidx.lifecycle.compose.collectAsStateWithLifecycle
+    import com.google.firebase.firestore.FirebaseFirestore
+    import com.google.firebase.firestore.Query
+    import com.google.firebase.firestore.QuerySnapshot
+    import com.google.firebase.firestore.SetOptions
+    import com.google.firebase.firestore.dataObjects
+    import kotlinx.coroutines.ExperimentalCoroutinesApi
+    import kotlinx.coroutines.channels.awaitClose
+    import kotlinx.coroutines.flow.Flow
+    import kotlinx.coroutines.flow.callbackFlow
+    import kotlinx.coroutines.flow.count
+    import kotlinx.coroutines.flow.filterNotNull
+    import kotlinx.coroutines.flow.flatMapLatest
+    import kotlinx.coroutines.flow.onEach
+    import kotlinx.coroutines.flow.withIndex
+    import kotlinx.coroutines.tasks.await
+    import javax.inject.Inject
 
     /**
-     * Listens to the current logged in user
-     * then queries firestore for all tasks that belong to that user
+     * REFERENCES:
+     * https://github.com/FirebaseExtended/make-it-so-android/blob/main/v2/app/src/main/java/com/google/firebase/example/makeitso/data/datasource/TodoListRemoteDataSource.kt#L7
+     * https://firebase.google.com/docs/firestore/query-data/queries
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun getAllTasks(currentUserIdFlow: Flow<String?>): Flow<List<Task>> {
-        return currentUserIdFlow.flatMapLatest { userId ->
-            firestore.collection("tasks")
-                .whereEqualTo("userId", userId)
-                .dataObjects()
+
+    class TaskRemoteDataSource @Inject constructor(private val firestore: FirebaseFirestore) {
+
+
+        /**
+         * Listens to the current logged in user
+         * then queries firestore for all tasks that belong to that user
+         */
+        @OptIn(ExperimentalCoroutinesApi::class)
+        fun getAllTasks(currentUserIdFlow: Flow<String?>): Flow<List<Task>> {
+            return currentUserIdFlow
+                .onEach { Log.d("UserIdFlow", "Emitting userId: $it") }
+                .filterNotNull()
+                .flatMapLatest { userId ->
+                    Log.d("TaskRemoteDataSource", "Fetching tasks for userId: $userId")
+                    firestore.collection("tasks")
+                        .whereEqualTo("userId", userId)
+                        .dataObjects()
+                }
 
         }
-    }
 
-    /**
-     * Creates a new task in firestore
-     */
-    suspend fun create(task: Task): String {
-        val data = mapOf(
-            "title" to task.title,
-            "description" to task.description,
-            "userId" to task.userId,
-            "completed" to task.completed,
-        )
-
-        return firestore.collection("tasks").add(data).await().id
-    }
-
-    /**
-     * Updates an existing task in firestore
-     */
-    suspend fun update(task: Task) {
-        val id = task.id
-            ?: throw IllegalArgumentException("Task ID cannot be null or empty when updating")
-
-        try {
-            firestore.collection("tasks").document(id).set(task).await()
-            Log.d("TaskRepository", "Task updated successfully.")
-        } catch (e: Exception) {
-            Log.e("TaskRepository", "Error updating task: ${e.message}", e)
-        }
-
-    }
-
-    /**
-     * Deletes a task from firestore
-     */
-    suspend fun delete(taskId: String) {
-        firestore.collection("tasks").document(taskId).delete().await()
-    }
-
-    /**
-     * Deletes multiple tasks from firestore
-     */
-    suspend fun deleteTasks(tasks: Set<Task>) {
-        // Thing to let me perform multiple writes in a single operation
-        val batch = firestore.batch()
-
-        tasks.forEach { task ->
-            task.id?.let { taskId ->
-                val taskRef = firestore.collection("tasks").document(taskId)
-                batch.delete(taskRef)
+        /**
+         * Creates a new task in firestore
+         */
+        suspend fun create(task: Task): String? {
+            return try {
+                val data = mapOf(
+                    "title" to task.title,
+                    "description" to task.description,
+                    "userId" to task.userId,
+                    "completed" to task.completed,
+                )
+                val result = firestore.collection("tasks").add(data).await()
+                Log.d("TaskRemoteDataSource", "Task created with ID: ${result.id}")
+                result.id
+            } catch (e: Exception) {
+                Log.e("TaskRemoteDataSource", "Failed to create task: ${e.message}", e)
+                null
             }
         }
 
-        batch.commit().await()
-    }
+        /**
+         * Updates an existing task in firestore
+         */
+        suspend fun update(task: Task) {
+            val id = task.id
+                ?: throw IllegalArgumentException("Task ID cannot be null or empty when updating")
 
-    suspend fun getOutstandingTasks(): Flow<List<Task>> {
-        return firestore.collection("tasks")
-            .whereEqualTo("completed", false)
-            .dataObjects()
-    }
+            try {
+                firestore.collection("tasks").document(id).set(task).await()
+                Log.d("TaskRepository", "Task updated successfully.")
+            } catch (e: Exception) {
+                Log.e("TaskRepository", "Error updating task: ${e.message}", e)
+            }
 
-    fun getOutstandingTaskCountFlow(userId: String): Flow<Int> = callbackFlow {
-        val listenerRegistration = firestore.collection("tasks")
-            .whereEqualTo("completed", false)
-            .whereEqualTo("userId", userId)
-            .addSnapshotListener { snapshot, error ->
+        }
+
+        /**
+         * Deletes a task from firestore
+         */
+        suspend fun delete(taskId: String) {
+            firestore.collection("tasks").document(taskId).delete().await()
+        }
+
+        /**
+         * Deletes multiple tasks from firestore
+         */
+        suspend fun deleteTasks(tasks: Set<Task>) {
+            // Thing to let me perform multiple writes in a single operation
+            val batch = firestore.batch()
+
+            tasks.forEach { task ->
+                task.id?.let { taskId ->
+                    val taskRef = firestore.collection("tasks").document(taskId)
+                    batch.delete(taskRef)
+                }
+            }
+
+            batch.commit().await()
+        }
+
+        fun getAllTasksForUser(userId: String): Flow<List<Task>> = callbackFlow {
+            Log.d("TaskRepository", "Starting task collection for user $userId")
+
+            val collection = FirebaseFirestore.getInstance()
+                .collection("tasks")
+                .whereEqualTo("userId", userId)
+
+            val listener = collection.addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    Log.e("TaskRepository", "Error getting tasks: $error")
                     return@addSnapshotListener
                 }
 
-                trySend(snapshot?.size() ?: 0)
+                val tasks = snapshot?.documents?.mapNotNull { doc ->
+                    doc.toObject(Task::class.java)?.copy(id = doc.id)
+                } ?: emptyList()
+
+                Log.d("TaskRepository", "Found ${tasks.size} tasks for user $userId")
+                trySend(tasks)
             }
 
-        awaitClose { listenerRegistration.remove() }
-    }
-
-    suspend fun getTasksCount(): Int {
-        val snapshot = firestore.collection("tasks")
-            .get()
-            .await() // Await the result asynchronously
-        return snapshot.size() // Returns the count of documents in the collection
-    }
-
-    suspend fun markAsComplete(tasks: Set<Task>) {
-        // Create a batch operation to update multiple documents at once
-        val batch = firestore.batch()
-
-        tasks.forEach { task ->
-            task.id?.let { taskId ->
-                val taskRef = firestore.collection("tasks").document(taskId)
-                batch.update(taskRef, "completed", true) // Set 'completed' field to true
-            }
+            awaitClose { listener.remove() }
         }
 
-        batch.commit().await()
-    }
-
-    suspend fun markAsIncomplete(tasks: Set<Task>) {
-        // Create a batch operation to update multiple documents at once
-        val batch = firestore.batch()
-
-        tasks.forEach { task ->
-            task.id?.let { taskId ->
-                val taskRef = firestore.collection("tasks").document(taskId)
-                batch.update(taskRef, "completed", false) // Set 'completed' field to true
-            }
+        suspend fun getOutstandingTasks(): Flow<List<Task>> {
+            return firestore.collection("tasks")
+                .whereEqualTo("completed", false)
+                .dataObjects()
         }
 
-        batch.commit().await()
-    }
+        fun getOutstandingTaskCountFlow(userId: String): Flow<Int> = callbackFlow {
+            val listenerRegistration = firestore.collection("tasks")
+                .whereEqualTo("completed", false)
+                .whereEqualTo("userId", userId)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        close(error)
+                        return@addSnapshotListener
+                    }
 
-}
+                    trySend(snapshot?.size() ?: 0)
+                }
+
+            awaitClose { listenerRegistration.remove() }
+        }
+
+        suspend fun getTasksCount(): Int {
+            val snapshot = firestore.collection("tasks")
+                .get()
+                .await() // Await the result asynchronously
+            return snapshot.size() // Returns the count of documents in the collection
+        }
+
+        suspend fun markAsComplete(tasks: Set<Task>) {
+            // Create a batch operation to update multiple documents at once
+            val batch = firestore.batch()
+
+            tasks.forEach { task ->
+                task.id?.let { taskId ->
+                    val taskRef = firestore.collection("tasks").document(taskId)
+                    batch.update(taskRef, "completed", true) // Set 'completed' field to true
+                }
+            }
+
+            batch.commit().await()
+        }
+
+        suspend fun markAsIncomplete(tasks: Set<Task>) {
+            // Create a batch operation to update multiple documents at once
+            val batch = firestore.batch()
+
+            tasks.forEach { task ->
+                task.id?.let { taskId ->
+                    val taskRef = firestore.collection("tasks").document(taskId)
+                    batch.update(taskRef, "completed", false) // Set 'completed' field to true
+                }
+            }
+
+            batch.commit().await()
+        }
+
+    }

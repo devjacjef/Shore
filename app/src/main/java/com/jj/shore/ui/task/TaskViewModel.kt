@@ -15,23 +15,55 @@ import com.jj.shore.data.task.Task
 import com.jj.shore.data.task.TaskRepository
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.State
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class TaskViewModel(
     private val taskRepository: TaskRepository,
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
-    val tasks = taskRepository.getAllTasks(authRepository.currentUserIdFlow)
+    private val _tasks = MutableStateFlow<List<Task>>(emptyList())
+    val tasks: StateFlow<List<Task>> = _tasks
 
-    fun refreshTasks() {
-        val userId = authRepository.currentUser?.uid
-        if (!userId.isNullOrBlank()) {
-            viewModelScope.launch {
-                // Force refresh task collection
-                taskRepository.refreshTasks(userId)
+    private val _outstandingTaskCount = MutableStateFlow(0)
+    val outstandingTaskCount: StateFlow<Int> = _outstandingTaskCount
+
+    init {
+        Log.d("TaskViewModel", "Initializing with user: ${authRepository.currentUser?.uid}")
+
+        viewModelScope.launch {
+            authRepository.currentUserIdFlow.collect { userId ->
+                Log.d("TaskViewModel", "User ID flow updated: $userId")
+
+                if (userId != null) {
+                    collectTasksForUser(userId)
+                } else {
+                    // ✅ Reset task state on sign-out
+                    _tasks.value = emptyList()
+                    _outstandingTaskCount.value = 0
+                }
             }
         }
     }
+
+    fun forceRefresh(userId: String) {
+        collectTasksForUser(userId)
+    }
+
+
+    private fun collectTasksForUser(userId: String) {
+        viewModelScope.launch {
+            taskRepository.getAllTasksForUser(userId).collect { allTasks ->
+                val userTasks = allTasks.filter { it.userId == userId }
+                _tasks.value = userTasks
+                _outstandingTaskCount.value = userTasks.count { !it.completed }
+
+                Log.d("TaskViewModel", "Tasks updated: ${userTasks.size} items")
+            }
+        }
+    }
+
 
     var selectedTask: Task? by mutableStateOf<Task?>(null)
         private set
@@ -65,10 +97,18 @@ class TaskViewModel(
     }
 
     fun createTask(task: Task) {
+        val userId = authRepository.currentUser?.uid
+        if (userId.isNullOrBlank()) {
+            Log.d("TaskViewModel", "User ID is null or blank.")
+            return
+        }
+
         viewModelScope.launch {
-            taskRepository.create(task)
+            val taskWithUser = task.copy(userId = userId)
+            taskRepository.create(taskWithUser)
         }
     }
+
 
     fun createTemplateTask(): Task = Task(
         title = "Template Task",
