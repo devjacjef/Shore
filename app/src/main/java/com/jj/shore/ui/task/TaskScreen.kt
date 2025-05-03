@@ -111,7 +111,6 @@ fun TaskActionButtons(
     // Insert New Task Button
     Button(
         onClick = {
-            // When the button is clicked, insert a new task
             val newTask = viewModel.createTemplateTask()
             viewModel.createTask(newTask)
         },

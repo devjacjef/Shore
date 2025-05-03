@@ -23,4 +23,8 @@ class TaskRepository @Inject constructor(private val taskRemoteDataSource: TaskR
     suspend fun delete(taskId: String) {
         taskRemoteDataSource.delete(taskId)
     }
+
+    fun getOutstandingTaskCountFlow(userId: String): Flow<Int> {
+        return taskRemoteDataSource.getOutstandingTaskCountFlow(userId)
+    }
 }

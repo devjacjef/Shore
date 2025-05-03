@@ -5,7 +5,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.dataObjects
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -23,7 +25,9 @@ class TaskRemoteDataSource @Inject constructor(private val firestore: FirebaseFi
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getAllTasks(currentUserIdFlow: Flow<String?>): Flow<List<Task>> {
+
         return currentUserIdFlow.flatMapLatest { userId ->
+            Log.d("TaskRemoteDataSource", "User ID for Firestore query: $userId")
             firestore.collection("tasks")
                 .whereEqualTo("userId", userId)
                 .dataObjects()
@@ -35,7 +39,7 @@ class TaskRemoteDataSource @Inject constructor(private val firestore: FirebaseFi
             "title" to task.title,
             "description" to task.description,
             "userId" to task.userId,
-            "isCompleted" to task.completed,
+            "completed" to task.completed,
         )
 
         return firestore.collection("tasks").add(data).await().id
@@ -64,5 +68,21 @@ class TaskRemoteDataSource @Inject constructor(private val firestore: FirebaseFi
                 firestore.collection("tasks").document(taskId).delete().await()
             }
         }
+    }
+
+    fun getOutstandingTaskCountFlow(userId: String): Flow<Int> = callbackFlow {
+        val listenerRegistration = firestore.collection("tasks")
+            .whereEqualTo("completed", false)
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                trySend(snapshot?.size() ?: 0)
+            }
+
+        awaitClose { listenerRegistration.remove() }
     }
 }
