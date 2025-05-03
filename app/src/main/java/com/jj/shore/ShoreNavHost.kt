@@ -85,7 +85,6 @@ fun ShoreNavHost(
             }
         }
         composable(route = Task.route) { backStackEntry ->
-
             if (!shouldNavigateToHome) {
                 navController.navigate(Login.route) {
                     popUpTo(Login.route)

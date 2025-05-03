@@ -5,18 +5,26 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,7 +50,7 @@ import com.jj.shore.ui.task.TaskViewModel
 @Composable
 fun TaskScreen(
     onTaskClick: (Task?) -> Unit,
-    viewModel: TaskViewModel
+    viewModel: TaskViewModel,
 ) {
     val tasks by viewModel.tasks.collectAsStateWithLifecycle(emptyList())
 
@@ -53,13 +61,17 @@ fun TaskScreen(
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
 
-        LazyColumn {
+        LazyColumn(
+
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+
+            ) {
             items(tasks) { task ->
                 TaskCard(
                     task = task,
                     selected = selectedTasks.contains(task),
                     onTaskClick = { clickedTask ->
-                            onTaskClick(clickedTask)
+                        onTaskClick(clickedTask)
                     },
                     onLongClick = { longPressedTask ->
                         selectedTasks = if (selectedTasks.contains(longPressedTask)) {
@@ -74,8 +86,9 @@ fun TaskScreen(
 
         Column(
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .background(Color.Transparent)
+                .padding(2.dp)
+                .align(Alignment.BottomStart),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TaskActionButtons(
                 viewModel,
@@ -89,8 +102,33 @@ fun TaskScreen(
 fun TaskActionButtons(
     viewModel: TaskViewModel,
     selectedTasks: Set<Task>,
-    OnClearSelection: () -> Unit
+    OnClearSelection: () -> Unit,
 ) {
+
+    if (selectedTasks.isNotEmpty()) {
+        val isAllCompleted = selectedTasks.all { it.completed }
+
+        Button(
+            onClick = {
+                if (isAllCompleted) {
+                    viewModel.markAsIncomplete(selectedTasks)
+                } else {
+                    viewModel.markAsComplete(selectedTasks)
+                }
+                OnClearSelection() // Clear selection after action
+            },
+            modifier = Modifier.size(64.dp),
+            shape = CircleShape,
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Icon(
+                imageVector = if (isAllCompleted) Icons.Filled.Close else Icons.Filled.Check,
+                contentDescription = if (isAllCompleted) "Incomplete" else "Complete",
+                modifier = Modifier.size(32.dp)
+            )
+        }
+    }
 
     // Delete Button
     if (selectedTasks.isNotEmpty()) {
@@ -99,29 +137,36 @@ fun TaskActionButtons(
                 viewModel.deleteTasks(selectedTasks)
                 OnClearSelection()
             },
-            modifier = Modifier
-                .size(64.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.error)
+            modifier = Modifier.size(64.dp), // Size of the button
+            shape = CircleShape,
+            contentPadding = PaddingValues(0.dp), // 🚨 This is the fix!
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
-            Icon(Icons.Filled.Delete, "Add")
+            Icon(
+                imageVector = Icons.Filled.Delete,
+                contentDescription = "Delete",
+                modifier = Modifier.size(32.dp) // Now this works!
+            )
         }
     }
 
-    // Insert New Task Button
-    Button(
-        onClick = {
-            // When the button is clicked, insert a new task
-            val newTask = viewModel.createTemplateTask()
-            viewModel.createTask(newTask)
-        },
-        modifier = Modifier
-            .size(64.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.error)
-    ) {
-        Icon(Icons.Filled.Add, "Add")
-    }
+    // Create New Task Button
+        Button(
+            onClick = {
+                val newTask = viewModel.createTemplateTask()
+                viewModel.createTask(newTask)
+            },
+            modifier = Modifier.size(64.dp), // Size of the button
+            shape = CircleShape,
+            contentPadding = PaddingValues(0.dp), // 🚨 This is the fix!
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Add",
+                modifier = Modifier.size(32.dp) // Now this works!
+            )
+        }
 
 
 }
@@ -132,27 +177,55 @@ fun TaskCard(
     task: Task,
     selected: Boolean = false,
     onTaskClick: (Task) -> Unit,
-    onLongClick: (Task) -> Unit
+    onLongClick: (Task) -> Unit,
 ) {
     Card(
+        colors = CardDefaults.cardColors(
+            containerColor = when {
+                selected -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+                task.completed -> MaterialTheme.colorScheme.inversePrimary
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            }
+        ),
         modifier = Modifier
+            .fillMaxWidth()
             .combinedClickable(
                 onClick = {
                     onTaskClick(task)
                     Log.d("TaskCardGesture", "Clicked on ${task.title}")
                 },
                 onLongClick = {
-                    onLongClick(task)  // Toggle selection on long press
+                    onLongClick(task)
                     Log.d("TaskCardGesture", "Long-pressed on ${task.title}")
                 }
             )
-
     ) {
-        Column(Modifier.background(if (selected) Color.LightGray else if (task.completed) Color.Green else Color.White)) {
-            task.id?.let { Text(text = it) }
-            Text(text = task.title)
-            Text(text = task.description)
-            Text(text = task.completed.toString())
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            // Title - large and bold
+            Text(
+                text = task.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            // Description - normal readable text
+            Text(
+                text = task.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            // ID - metadata, small and low-contrast, at bottom
+            task.id?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
         }
     }
 }

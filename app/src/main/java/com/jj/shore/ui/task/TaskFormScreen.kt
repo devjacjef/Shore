@@ -35,65 +35,75 @@ fun TaskFormScreen(
 
     var title by rememberSaveable { mutableStateOf(selectedTask?.title ?: "") }
     var description by rememberSaveable { mutableStateOf(selectedTask?.description ?: "") }
-    val isCompleted = viewModel.isCompleted
+    var isCompleted by rememberSaveable { mutableStateOf(selectedTask?.completed ?: false) }
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            // Title input
             TextField(
                 value = title,
                 onValueChange = { title = it },
                 placeholder = { Text("Task Title") },
                 shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(56.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent
+                    focusedIndicatorColor = Color.Transparent
                 )
             )
 
             Spacer(Modifier.size(16.dp))
 
+            // Description input (larger height)
             TextField(
                 value = description,
                 onValueChange = { description = it },
                 placeholder = { Text("Task Description") },
                 shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(120.dp), // Taller for more lines
                 colors = TextFieldDefaults.colors(
                     unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent
-                )
+                    focusedIndicatorColor = Color.Transparent
+                ),
+                singleLine = false, // Enable multiline
+                maxLines = 5
             )
 
             Spacer(Modifier.size(16.dp))
 
+            // Completion toggle
             Button(
-                onClick = { viewModel.toggleCompleted() }, // ✅ Call ViewModel to update state
+                onClick = { isCompleted = !isCompleted },
                 modifier = Modifier
                     .height(48.dp)
                     .width(200.dp)
             ) {
                 Text(if (isCompleted) "Mark Incomplete" else "Mark Complete")
             }
+
+            Spacer(Modifier.size(16.dp))
+
+            // Save button
+            Button(
+                onClick = {
+                    val updatedTask = selectedTask?.copy(
+                        title = title,
+                        description = description,
+                        completed = isCompleted
+                    )
+                    updatedTask?.let { viewModel.saveTask(it) }
+                },
+                modifier = Modifier
+                    .height(48.dp)
+                    .width(200.dp)
+            ) {
+                Text("Save Task")
+            }
         }
-    }
-
-    Spacer(Modifier.size(16.dp))
-
-    Button(
-        onClick = {
-            val updatedTask = selectedTask?.copy(
-                title = title,
-                description = description,
-                completed = viewModel.isCompleted
-            )
-            updatedTask?.let { viewModel.saveTask(it) }
-        }, Modifier
-            .height(48.dp)
-            .width(200.dp)
-    ) {
-        Text("Save Task")
     }
 }

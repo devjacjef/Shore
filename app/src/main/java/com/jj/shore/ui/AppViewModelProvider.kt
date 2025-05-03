@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.jj.shore.Login
 import com.jj.shore.ShoreApplication
+import com.jj.shore.ui.home.HomeViewModel
 import com.jj.shore.ui.login.LoginViewModel
 import com.jj.shore.ui.register.RegisterViewModel
 import com.jj.shore.ui.settings.SettingsViewModel
@@ -21,6 +22,10 @@ object AppViewModelProvider {
                 shoreApplication().container.taskRepository,
                 shoreApplication().container.authRepository
             )
+        }
+
+        initializer {
+            HomeViewModel(shoreApplication().container.authRepository, shoreApplication().container.taskRepository)
         }
 
         initializer {

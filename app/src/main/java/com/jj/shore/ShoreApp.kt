@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -53,13 +54,15 @@ fun ShoreApp() {
         Scaffold(
             // Bottom Navigation Bar
             bottomBar = {
-                BottomNavigationBar(
-                    allScreens = navigationScreens,
-                    onTabSelected = { newScreen ->
-                        navController.navigate(newScreen.route)
-                    },
-                    currentScreen = currentScreen
-                )
+                Box(Modifier.padding(bottom = 24.dp)) {
+                    BottomNavigationBar(
+                        allScreens = navigationScreens,
+                        onTabSelected = { newScreen ->
+                            navController.navigate(newScreen.route)
+                        },
+                        currentScreen = currentScreen
+                    )
+                }
             }
         ) { innerPadding ->
 
