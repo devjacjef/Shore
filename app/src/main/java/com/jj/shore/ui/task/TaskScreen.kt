@@ -53,13 +53,19 @@ fun TaskScreen(
     onTaskClick: (Task?) -> Unit,
     viewModel: TaskViewModel,
 ) {
+    /**
+     * State for the list of tasks
+     */
     val tasks by viewModel.tasks.collectAsState()
 
-    var selectMode by rememberSaveable { mutableStateOf(false) }
+    /**
+     * State for the selected tasks
+     */
     var selectedTasks by rememberSaveable { mutableStateOf<Set<Task>>(emptySet()) }
 
-    var activeTask by rememberSaveable { mutableStateOf<Task?>(null) }
-
+    /**
+     * The task list
+     */
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
 
         LazyColumn(
@@ -85,6 +91,9 @@ fun TaskScreen(
             }
         }
 
+        /**
+         * Action Buttons
+         */
         Column(
             modifier = Modifier
                 .padding(2.dp)
@@ -99,6 +108,9 @@ fun TaskScreen(
     }
 }
 
+/**
+ * Menu for different operations
+ */
 @Composable
 fun TaskActionButtons(
     viewModel: TaskViewModel,
@@ -116,7 +128,7 @@ fun TaskActionButtons(
                 } else {
                     viewModel.markAsComplete(selectedTasks)
                 }
-                OnClearSelection() // Clear selection after action
+                OnClearSelection()
             },
             modifier = Modifier.size(64.dp),
             shape = CircleShape,
@@ -138,9 +150,9 @@ fun TaskActionButtons(
                 viewModel.deleteTasks(selectedTasks)
                 OnClearSelection()
             },
-            modifier = Modifier.size(64.dp), // Size of the button
+            modifier = Modifier.size(64.dp),
             shape = CircleShape,
-            contentPadding = PaddingValues(0.dp), // 🚨 This is the fix!
+            contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Icon(
@@ -158,15 +170,15 @@ fun TaskActionButtons(
                 viewModel.createTask(newTask)
                 Log.d("Create task called", "Create task called")
             },
-            modifier = Modifier.size(64.dp), // Size of the button
+            modifier = Modifier.size(64.dp),
             shape = CircleShape,
-            contentPadding = PaddingValues(0.dp), // 🚨 This is the fix!
+            contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Add",
-                modifier = Modifier.size(32.dp) // Now this works!
+                modifier = Modifier.size(32.dp)
             )
         }
 
@@ -204,14 +216,12 @@ fun TaskCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            // Title - large and bold
             Text(
                 text = task.title,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            // Description - normal readable text
             Text(
                 text = task.description,
                 style = MaterialTheme.typography.bodyMedium,
@@ -219,7 +229,6 @@ fun TaskCard(
                 modifier = Modifier.padding(top = 4.dp)
             )
 
-            // ID - metadata, small and low-contrast, at bottom
             task.id?.let {
                 Text(
                     text = it,

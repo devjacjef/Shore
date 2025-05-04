@@ -29,24 +29,4 @@
         suspend fun markAsIncomplete(tasks: Set<Task>) {
             taskRemoteDataSource.markAsIncomplete(tasks)
         }
-
-        suspend fun delete(taskId: String) {
-            taskRemoteDataSource.delete(taskId)
-        }
-
-        suspend fun getOutstandingTasks(): Flow<List<Task>> {
-            return taskRemoteDataSource.getOutstandingTasks()
-        }
-
-        fun getOutstandingTaskCountFlow(userId: String): Flow<Int> {
-            return taskRemoteDataSource.getOutstandingTaskCountFlow(userId)
-        }
-
-        fun getAllTasksForUser(userId: String): Flow<List<Task>> {
-            return taskRemoteDataSource.getAllTasksForUser(userId)
-        }
-
-        suspend fun getTasksCount(): Int {
-            return taskRemoteDataSource.getTasksCount()
-        }
     }

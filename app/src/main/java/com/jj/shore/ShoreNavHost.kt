@@ -1,30 +1,19 @@
 package com.jj.shore
 
-import android.util.Log
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.jj.shore.ui.AppViewModelProvider
 import com.jj.shore.ui.home.HomeScreen
-import com.jj.shore.ui.login.LoginScreen
-import com.jj.shore.ui.login.LoginViewModel
-import com.jj.shore.ui.register.RegisterScreen
-import com.jj.shore.ui.settings.SettingsScreen
+import com.jj.shore.ui.auth.LoginScreen
+import com.jj.shore.ui.auth.AuthViewModel
+import com.jj.shore.ui.auth.RegisterScreen
+import com.jj.shore.ui.auth.SettingsScreen
 import com.jj.shore.ui.task.TaskFormScreen
 import com.jj.shore.ui.task.TaskScreen
 import com.jj.shore.ui.task.TaskViewModel
@@ -36,32 +25,47 @@ import com.jj.shore.ui.task.TaskViewModel
  * https://developer.android.com/codelabs/jetpack-compose-navigation#3
  */
 
+/**
+ * Controller, handles routing logic
+ * Passes Data Around
+ */
 @Composable
 fun ShoreNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val loginViewModel: LoginViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val shouldNavigateToHome by loginViewModel.shouldNavigateToHome.collectAsState()
-    val shouldRestartApp by loginViewModel.shouldRestartApp.collectAsState()
+    /**
+     * Authentication Logic
+     */
+    val authViewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val shouldNavigateToHome by authViewModel.shouldNavigateToHome.collectAsState()
+    val shouldRestartApp by authViewModel.shouldRestartApp.collectAsState()
 
+    /**
+     * For passing some data around
+     */
     val taskViewModel: TaskViewModel = viewModel(factory = AppViewModelProvider.Factory)
 
+    /**
+     * Navigation Logic, defaults
+     */
     val startDestination = when {
         shouldRestartApp -> {
-            if (shouldNavigateToHome) Home.route else Login.route
+            Login.route
         }
-
-        else -> Login.route
+        shouldNavigateToHome -> {
+            Home.route
+        }
+        else -> {
+            Login.route
+        }
     }
 
-    // Navigate normally
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier
     ) {
-
         composable(route = Login.route) {
             LoginScreen(openRegister = {
                 navController.navigate(Register.route) {
@@ -80,7 +84,7 @@ fun ShoreNavHost(
                     launchSingleTop = true
                 }
             } else {
-                HomeScreen()
+                HomeScreen(taskViewModel)
             }
         }
         composable(route = Task.route) { backStackEntry ->
@@ -117,25 +121,3 @@ fun ShoreNavHost(
         }
     }
 }
-
-
-/**
- *  Took from one of the references.
- *  Comments explain what the code does.
- */
-fun NavHostController.navigateSingleTopTo(route: String) =
-    this.navigate(route) {
-        // Pop up to the start destination of the graph to
-        // avoid building up a large stack of destinations
-        // on the back stack as users select items
-        popUpTo(
-            this@navigateSingleTopTo.graph.findStartDestination().id
-        ) {
-            saveState = true
-        }
-        // Avoid multiple copies of the same destination when
-        // reselecting the same item
-        launchSingleTop = true
-        // Restore state when reselecting a previously selected item
-        restoreState = true
-    }

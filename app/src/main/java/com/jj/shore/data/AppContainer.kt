@@ -8,7 +8,6 @@
     import com.jj.shore.data.auth.AuthRepository
     import com.jj.shore.data.task.TaskRemoteDataSource
     import com.jj.shore.data.task.TaskRepository
-    import com.jj.shore.helpers.connectivity.NetworkConnectivityObserver
 
     /**
      * REFERENCES
@@ -23,7 +22,6 @@
         val firestore: FirebaseFirestore
         val authRepository: AuthRepository
         val taskRepository: TaskRepository
-        val connectivityObserver: NetworkConnectivityObserver
     }
 
     /**
@@ -53,10 +51,6 @@
 
         override val taskRepository: TaskRepository by lazy {
             TaskRepository(taskRemoteDataSource)
-        }
-
-        override val connectivityObserver: NetworkConnectivityObserver by lazy {
-            NetworkConnectivityObserver(context)
         }
 
     }

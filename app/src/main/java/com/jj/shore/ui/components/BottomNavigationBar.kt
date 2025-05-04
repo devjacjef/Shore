@@ -36,7 +36,9 @@ import androidx.compose.ui.draw.clip
  * https://github.com/android/codelab-android-compose/blob/end/NavigationCodelab/app/src/main/java/com/example/compose/rally/ui/components/RallyTabRow.kt
  */
 
-// Navigation Bar for the App
+/**
+ * Navigation Bar for App
+ */
 @Composable
 fun BottomNavigationBar(
     allScreens: List<ShoreDestination>,
@@ -63,11 +65,11 @@ fun BottomNavigationBar(
             }
         }
     }
-    // TODO: Display All Screens in a Row
-    // TODO: Implement Navigation
 }
 
-// Navigation Tabs for the Navigation Bar
+/**
+ * Individual Icons
+ */
 @Composable
 fun NavigationTab(
     icon: ImageVector,

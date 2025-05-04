@@ -1,4 +1,6 @@
-package com.jj.shore.ui.register
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package com.jj.shore.ui.auth
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -28,18 +31,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jj.shore.ui.AppViewModelProvider
 
-/**
- * REFERENCES
- *
- */
-
 @Composable
-fun RegisterScreen(
-    viewModel: RegisterViewModel = viewModel(factory = AppViewModelProvider.Factory)
+fun LoginScreen(
+    viewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    openRegister: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var repeatPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
     Box(
@@ -48,35 +46,36 @@ fun RegisterScreen(
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        RegisterForm(email,
-            password,
-            repeatPassword,
+        LoginForm(
+            email = email,
+            password = password,
             errorMessage = errorMessage,
             onEmailChange = { email = it },
             onPasswordChange = { password = it },
-            onRepeatPasswordChange = { repeatPassword = it },
+            onSignInClick = {
+                viewModel.signIn(email, password, errorMessage = {message ->
+                    errorMessage = message
+                })
+            },
             onRegisterClick = {
-                viewModel.register(
-                    email,
-                    password,
-                    repeatPassword,
-                    errorMessage = { message -> errorMessage = message })
-            })
+                openRegister()
+            }
+        )
     }
 
 }
 
 @Composable
-fun RegisterForm(
+fun LoginForm(
     email: String,
     password: String,
-    repeatPassword: String,
     errorMessage: String,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onRepeatPasswordChange: (String) -> Unit,
+    onSignInClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
         Text("Shore", fontSize = 64.sp)
@@ -112,22 +111,6 @@ fun RegisterForm(
             visualTransformation = PasswordVisualTransformation()
         )
 
-        Spacer(Modifier.size(16.dp))
-
-        TextField(
-            value = repeatPassword,
-            onValueChange = onRepeatPasswordChange,
-            label = { Text("Confirm Password") },
-            shape = RoundedCornerShape(12.dp),
-            colors = TextFieldDefaults.colors(
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent
-            ),
-            visualTransformation = PasswordVisualTransformation()
-        )
-
         if (errorMessage.isNotEmpty()) {
             Spacer(Modifier.size(8.dp))
             Text(
@@ -141,12 +124,15 @@ fun RegisterForm(
 
         Spacer(Modifier.size(32.dp))
 
-        Button(
-            onClick = onRegisterClick,
-            Modifier
-                .height(48.dp)
-                .width(200.dp)
-        ) {
+        Button(onClick = onSignInClick,
+            Modifier.height(48.dp).width(200.dp)) {
+            Text("Sign In")
+        }
+
+        Spacer(Modifier.size(16.dp))
+
+        Button(onClick = onRegisterClick,
+            Modifier.height(48.dp).width(200.dp)) {
             Text("Sign Up")
         }
     }

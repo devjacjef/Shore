@@ -32,16 +32,13 @@ sealed interface ShoreDestination {
 }
 
 /**
- * Defines a Destination for Home
+ * Defines Routes for the App
  */
 data object Home : ShoreDestination {
     override val icon = Icons.Filled.Home
     override val route = "home"
 }
 
-///**
-// * Defines a Destination for Task Screen
-// */
 data object Task : ShoreDestination {
     override val icon = Icons.Filled.DateRange
     override val route = "task"
@@ -49,7 +46,7 @@ data object Task : ShoreDestination {
 
 data object Login : ShoreDestination {
     override val icon = Icons.Filled.AccountCircle
-    override val route = "login"
+    override val route = "auth"
 }
 
 data object Settings : ShoreDestination {
@@ -68,7 +65,7 @@ data object TaskForm : ShoreDestination {
 }
 
 /**
- * List of routes for the navigation bar
+ * List of places to navigate
  */
 val navigationScreens = listOf(Home, Task, Settings);
 

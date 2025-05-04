@@ -16,15 +16,17 @@ import javax.inject.Inject
  * https://github.com/FirebaseExtended/make-it-so-android/blob/main/v2/app/src/main/java/com/google/firebase/example/makeitso/data/datasource/AuthRemoteDataSource.kt
  */
 
+
 class AuthRemoteDataSource @Inject constructor(private val auth: FirebaseAuth) {
+
+    /**
+     * Get the current user
+     */
     val currentUser : FirebaseUser? get() = auth.currentUser
 
-    private var listenerAdded = false
-
-    init {
-        Log.d("AuthRemoteDataSource", "${currentUser?.uid}")
-    }
-
+    /**
+     * Get the current user ID
+     */
     val currentUserIdFlow: Flow<String?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
             val userId = auth.currentUser?.uid
@@ -43,23 +45,25 @@ class AuthRemoteDataSource @Inject constructor(private val auth: FirebaseAuth) {
         }
     }
 
-
-
-
-    suspend fun createGuestAccount() {
-        auth.signInAnonymously().await()
-    }
-
+    /**
+     * Sign in with email and password
+     */
     suspend fun signIn(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password).await()
     }
 
+    /**
+     * Sign up with email and password
+     */
     suspend fun register(email: String, password: String) {
         FirebaseAuth.getInstance()
             .createUserWithEmailAndPassword(email, password)
             .await()
     }
 
+    /**
+     * Sign Out
+     */
     fun signOut() {
         if (auth.currentUser!!.isAnonymous) {
             auth.currentUser!!.delete()
@@ -67,10 +71,16 @@ class AuthRemoteDataSource @Inject constructor(private val auth: FirebaseAuth) {
         auth.signOut()
     }
 
+    /**
+     * Delete Account
+     */
     suspend fun deleteAccount() {
         auth.currentUser!!.delete().await()
     }
 
+    /**
+     * Add Auth State Listener
+     */
     fun addAuthStateListener(onAuthStateChanged: (user: FirebaseUser?) -> Unit) {
         auth.addAuthStateListener { firebaseAuth ->
             onAuthStateChanged(firebaseAuth.currentUser)

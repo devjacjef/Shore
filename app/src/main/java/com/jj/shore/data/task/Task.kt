@@ -8,6 +8,9 @@ import com.google.firebase.firestore.DocumentId
  * https://github.com/FirebaseExtended/make-it-so-android/blob/main/v2/app/src/main/java/com/google/firebase/example/makeitso/data/model/TodoItem.kt
  */
 
+/**
+ * Data Model
+ */
 data class Task(
     @DocumentId val id: String? = "",
     val title: String = "",

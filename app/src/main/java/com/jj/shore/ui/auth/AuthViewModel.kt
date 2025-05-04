@@ -1,17 +1,17 @@
-package com.jj.shore.ui.login
+package com.jj.shore.ui.auth
 
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.jj.shore.data.auth.AuthRepository
+import com.jj.shore.helpers.isValidEmail
+import com.jj.shore.helpers.isValidPassword
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
+class AuthViewModel(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -20,28 +20,23 @@ class LoginViewModel(
             try {
                 FirebaseAuth.getInstance().currentUser?.reload()
             } catch (e: Exception) {
-                Log.e("LoginViewModel", "User session reload failed", e)
+                Log.e("AuthViewModel", "User session reload failed", e)
             }
         }
     }
 
-    // Track whether the app needs to restart after a sign-out or account deletion
+    /**
+     * Determines if app should go back to the start
+     */
     private val _shouldRestartApp = MutableStateFlow(false)
     val shouldRestartApp: StateFlow<Boolean> get() = _shouldRestartApp
 
-    // Track if the current user is anonymous
-    private val _isAnonymous = MutableStateFlow(true)
-    val isAnonymous: StateFlow<Boolean> get() = _isAnonymous
-
-    // Loading state during sign-in
-    private val _isLoading = mutableStateOf(false)
-    val isLoading: State<Boolean> get() = _isLoading
-
-    // Navigation state to home
+    /**
+     * Determines if app should go to the home screen
+     */
     private val _shouldNavigateToHome = MutableStateFlow(false)
     val shouldNavigateToHome: StateFlow<Boolean> get() = _shouldNavigateToHome
-
-    // Initialize listener for authentication state
+    
     init {
         viewModelScope.launch {
             authRepository.currentUserIdFlow.collect { userId ->
@@ -50,39 +45,35 @@ class LoginViewModel(
         }
     }
 
-    // Load the current user and update anonymous status
-    fun loadCurrentUser() {
-        try {
-            val currentUser = authRepository.currentUser
-            _isAnonymous.value = currentUser != null && currentUser.isAnonymous
-        } catch (e: Exception) {
-            Log.e("LoginViewModel", "Error loading current user", e)
-        }
-    }
-
-    // Sign out the user and trigger app restart
+    /**
+     * Sign out user
+     */
     fun signOut() {
         try {
             authRepository.signOut()
             _shouldRestartApp.value = true
         } catch (e: Exception) {
-            Log.e("LoginViewModel", "Error signing out", e)
+            Log.e("AuthViewModel", "Error signing out", e)
         }
     }
 
-    // Delete user account and trigger app restart
+    /**
+     * Delete account
+     */
     fun deleteAccount() {
         viewModelScope.launch {
             try {
                 authRepository.deleteAccount()
                 _shouldRestartApp.value = true
             } catch (e: Exception) {
-                Log.e("LoginViewModel", "Error deleting account", e)
+                Log.e("AuthViewModel", "Error deleting account", e)
             }
         }
     }
 
-    // Handle user sign-in with email and password
+    /**
+     * Signs in the user
+     */
     fun signIn(
         email: String,
         password: String,
@@ -93,8 +84,6 @@ class LoginViewModel(
             return
         }
 
-        _isLoading.value = true
-
         viewModelScope.launch {
             try {
                 authRepository.signIn(email, password)
@@ -102,8 +91,42 @@ class LoginViewModel(
             } catch (e: Exception) {
                 _shouldNavigateToHome.value = false
                 errorMessage("Error signing in: ${e.message}")
-            } finally {
-                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Handles Register for User
+     */
+    fun register(
+        email: String,
+        password: String,
+        repeatPassword: String,
+        errorMessage: (String) -> Unit
+    ) {
+
+        if (!email.isValidEmail()) {
+            errorMessage("Invalid email")
+            return
+        }
+
+        if (!password.isValidPassword()) {
+            errorMessage("Invalid password")
+            return
+        }
+
+        if (password != repeatPassword) {
+            errorMessage("Passwords do not match.")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                authRepository.signUp(email, password)
+                _shouldRestartApp.value = true
+            } catch (e: Exception) {
+                _shouldNavigateToHome.value = false
+                errorMessage("Error registering user, ${e.message}")
             }
         }
     }

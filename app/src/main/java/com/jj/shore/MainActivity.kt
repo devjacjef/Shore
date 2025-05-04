@@ -10,6 +10,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            /**
+             * Main Entry Point of the App.
+             */
             ShoreApp()
         }
     }

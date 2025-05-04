@@ -31,12 +31,21 @@ import com.jj.shore.data.task.Task
 fun TaskFormScreen(
     viewModel: TaskViewModel
 ) {
+    /**
+     * The task being edited
+     */
     val selectedTask = viewModel.selectedTask
 
+    /**
+     * State for the input fields
+     */
     var title by rememberSaveable { mutableStateOf(selectedTask?.title ?: "") }
     var description by rememberSaveable { mutableStateOf(selectedTask?.description ?: "") }
     var isCompleted by rememberSaveable { mutableStateOf(selectedTask?.completed ?: false) }
 
+    /**
+     * Form
+     */
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
